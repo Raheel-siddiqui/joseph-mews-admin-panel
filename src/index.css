@@ -1,0 +1,342 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Joseph Mews — Private Banking Modernism
+   - Warm charcoal background (#0F0F0F), never pure black
+   - Champagne gold (#C6A46C) used as punctuation only
+   - Mixed typography: Fraunces serif for display, Inter for UI, JetBrains Mono for IDs
+*/
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Custom Joseph Mews tokens */
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+}
+
+:root {
+  /* Default to dark — this is a dark-first product */
+  --radius: 0.25rem;
+
+  --background: oklch(0.155 0.005 60);          /* #0F0F0F warm charcoal */
+  --foreground: oklch(0.945 0.012 75);          /* #F5F1E8 warm off-white */
+  --card: oklch(0.185 0.006 60);                /* #161616 elevated surface */
+  --card-foreground: oklch(0.945 0.012 75);
+  --popover: oklch(0.21 0.007 60);              /* #1C1C1C */
+  --popover-foreground: oklch(0.945 0.012 75);
+
+  --primary: oklch(0.74 0.075 75);              /* #C6A46C champagne gold */
+  --primary-foreground: oklch(0.155 0.005 60);
+  --gold: oklch(0.74 0.075 75);                 /* #C6A46C */
+  --gold-soft: oklch(0.74 0.075 75 / 0.15);
+
+  --secondary: oklch(0.22 0.006 60);
+  --secondary-foreground: oklch(0.85 0.01 75);
+  --muted: oklch(0.21 0.006 60);
+  --muted-foreground: oklch(0.62 0.015 75);     /* #8A8276 warm grey */
+  --accent: oklch(0.74 0.075 75 / 0.12);
+  --accent-foreground: oklch(0.945 0.012 75);
+
+  --positive: oklch(0.72 0.12 145);             /* desaturated sage green */
+  --negative: oklch(0.65 0.18 25);              /* desaturated terracotta */
+
+  --destructive: oklch(0.65 0.18 25);
+  --destructive-foreground: oklch(0.945 0.012 75);
+
+  --border: oklch(0.945 0.012 75 / 0.08);       /* hairline */
+  --input: oklch(0.945 0.012 75 / 0.10);
+  --ring: oklch(0.74 0.075 75 / 0.5);
+
+  --chart-1: oklch(0.74 0.075 75);
+  --chart-2: oklch(0.55 0.06 75);
+  --chart-3: oklch(0.4 0.04 75);
+  --chart-4: oklch(0.85 0.05 75);
+  --chart-5: oklch(0.65 0.07 60);
+
+  --sidebar: oklch(0.155 0.005 60);
+  --sidebar-foreground: oklch(0.945 0.012 75);
+  --sidebar-primary: oklch(0.74 0.075 75);
+  --sidebar-primary-foreground: oklch(0.155 0.005 60);
+  --sidebar-accent: oklch(0.21 0.006 60);
+  --sidebar-accent-foreground: oklch(0.945 0.012 75);
+  --sidebar-border: oklch(0.945 0.012 75 / 0.08);
+  --sidebar-ring: oklch(0.74 0.075 75 / 0.5);
+}
+
+.dark {
+  /* Same as :root since this is a dark-first product */
+  --background: oklch(0.155 0.005 60);
+  --foreground: oklch(0.945 0.012 75);
+  --card: oklch(0.185 0.006 60);
+  --card-foreground: oklch(0.945 0.012 75);
+  --popover: oklch(0.21 0.007 60);
+  --popover-foreground: oklch(0.945 0.012 75);
+  --primary: oklch(0.74 0.075 75);
+  --primary-foreground: oklch(0.155 0.005 60);
+  --secondary: oklch(0.22 0.006 60);
+  --secondary-foreground: oklch(0.85 0.01 75);
+  --muted: oklch(0.21 0.006 60);
+  --muted-foreground: oklch(0.62 0.015 75);
+  --accent: oklch(0.74 0.075 75 / 0.12);
+  --accent-foreground: oklch(0.945 0.012 75);
+  --destructive: oklch(0.65 0.18 25);
+  --destructive-foreground: oklch(0.945 0.012 75);
+  --border: oklch(0.945 0.012 75 / 0.08);
+  --input: oklch(0.945 0.012 75 / 0.10);
+  --ring: oklch(0.74 0.075 75 / 0.5);
+  --chart-1: oklch(0.74 0.075 75);
+  --chart-2: oklch(0.55 0.06 75);
+  --chart-3: oklch(0.4 0.04 75);
+  --chart-4: oklch(0.85 0.05 75);
+  --chart-5: oklch(0.65 0.07 60);
+  --sidebar: oklch(0.155 0.005 60);
+  --sidebar-foreground: oklch(0.945 0.012 75);
+  --sidebar-primary: oklch(0.74 0.075 75);
+  --sidebar-primary-foreground: oklch(0.155 0.005 60);
+  --sidebar-accent: oklch(0.21 0.006 60);
+  --sidebar-accent-foreground: oklch(0.945 0.012 75);
+  --sidebar-border: oklch(0.945 0.012 75 / 0.08);
+  --sidebar-ring: oklch(0.74 0.075 75 / 0.5);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html, body {
+    overscroll-behavior-y: none;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+
+  /* Editorial typography utilities */
+  .font-serif {
+    font-family: var(--font-serif);
+    font-feature-settings: "ss01", "ss02";
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  /* Tabular numbers — essential for financial data alignment */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Tracking utilities for editorial labels */
+  .label-eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  /* Mobile-first viewport — phone shell wrapper for desktop preview
+     On real phones (≤430px) it fills the screen; on desktop it letterboxes
+     with a soft outer frame so the prototype clearly reads as a phone app. */
+  .phone-shell {
+    max-width: 430px;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 100dvh;
+    position: relative;
+  }
+
+  @media (min-width: 768px) {
+    .phone-shell {
+      min-height: calc(100dvh - 4rem);
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+  }
+
+  /* Page-level horizontal gutter — fluid 18→24px depending on width */
+  .page-px {
+    padding-left: clamp(1.125rem, 5vw, 1.5rem);
+    padding-right: clamp(1.125rem, 5vw, 1.5rem);
+  }
+
+  /* Negate page-px gutter for full-bleed media */
+  .-mx-page {
+    margin-left: calc(-1 * clamp(1.125rem, 5vw, 1.5rem));
+    margin-right: calc(-1 * clamp(1.125rem, 5vw, 1.5rem));
+  }
+
+  /* Safe-area utilities (iOS notch + home bar) */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Disable iOS tap highlight, suppress text selection on chrome elements */
+  .tap {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Touch-friendly press feedback for cards/rows */
+  .press {
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 200ms ease;
+  }
+  .press:active {
+    transform: scale(0.98);
+    opacity: 0.92;
+  }
+
+  /* Fluid hero number — looks right on every phone width */
+  .num-hero {
+    font-size: clamp(2.25rem, 11vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.015em;
+    font-variant-numeric: tabular-nums;
+  }
+  .num-display {
+    font-size: clamp(1.5rem, 6vw, 1.875rem);
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Hairline divider — signature element */
+  .hairline {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+  }
+
+  .hairline-gold {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
+    opacity: 0.4;
+  }
+
+  /* Subtle grain texture overlay */
+  .grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    z-index: 1000;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+}
+
+/* Hide scrollbars on horizontal scroll containers but keep functionality */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Subtle entrance animations */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+
+/* Utility: hide scrollbars while preserving scroll for chip rails */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
