@@ -21,6 +21,7 @@ import type {
   ResidencyStatus,
 } from "@/models";
 import { createInvestor, listUsers } from "@/services/api";
+import { COUNTRIES, NATIONALITIES } from "@/lib/locations";
 
 export function InvestorNewPage() {
   const { canMutate } = useAuth();
@@ -101,16 +102,34 @@ export function InvestorNewPage() {
             <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="country">Country</Label>
-            <Input id="country" value={country} onChange={(e) => setCountry(e.target.value)} />
+            <Label>Country</Label>
+            <Select value={country} onValueChange={setCountry}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select country" />
+              </SelectTrigger>
+              <SelectContent>
+                {COUNTRIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="nationality">Nationality</Label>
-            <Input
-              id="nationality"
-              value={nationality}
-              onChange={(e) => setNationality(e.target.value)}
-            />
+            <Label>Nationality</Label>
+            <Select value={nationality} onValueChange={setNationality}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select nationality" />
+              </SelectTrigger>
+              <SelectContent>
+                {NATIONALITIES.map((n) => (
+                  <SelectItem key={n} value={n}>
+                    {n}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label>Residency</Label>
