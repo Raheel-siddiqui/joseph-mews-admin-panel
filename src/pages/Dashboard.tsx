@@ -50,12 +50,9 @@ export function DashboardPage() {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard label="Total investors" value={stats.totalInvestors} href="/investors" />
         <StatCard label="Invited users" value={stats.invitedUsers} href="/investors?filter=invited" />
-        <StatCard label="Signed-up users" value={stats.signedUpUsers} href="/investors?filter=signed_up" />
         <StatCard label="Pending invitations" value={stats.pendingInvitations} href="/investors?filter=pending_invite" />
         <StatCard label="Active properties" value={stats.activeProperties} href="/properties" />
         <StatCard label="Open enquiries" value={stats.openEnquiries} href="/enquiries" />
-        <StatCard label="High-intent investors" value={stats.highIntentInvestors} href="/investors?filter=high_intent" />
-        <StatCard label="Upcoming payments" value={stats.upcomingPayments} href="/payments" />
       </div>
 
       <div className="mt-8 grid gap-4 xl:grid-cols-2">
@@ -65,7 +62,7 @@ export function DashboardPage() {
               key={s.id}
               title={s.signalType}
               meta={s.triggeringActivity}
-              trailing={<StatusBadge value={s.intentLevel} />}
+              trailing={<StatusBadge value={s.status} />}
             />
           ))}
         </Section>

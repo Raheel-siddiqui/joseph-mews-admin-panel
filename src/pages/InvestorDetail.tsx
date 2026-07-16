@@ -24,7 +24,6 @@ import type {
   ActivityEvent,
   DocumentAsset,
   IntentSignal,
-  Invitation,
   Investor,
   Note,
   PortfolioOwnership,
@@ -36,14 +35,12 @@ import {
   getInvestor,
   listActivity,
   listDocuments,
-  listInvitations,
   listNotes,
   listOwnership,
   listProperties,
   listSignals,
   listUsers,
   updateInvestor,
-  updateInvitation,
   saveDocument,
 } from "@/services/api";
 
@@ -57,7 +54,6 @@ export function InvestorDetailPage() {
   const [signals, setSignals] = useState<IntentSignal[]>([]);
   const [documents, setDocuments] = useState<DocumentAsset[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
-  const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [agents, setAgents] = useState<InternalUser[]>([]);
   const [noteBody, setNoteBody] = useState("");
   const [docName, setDocName] = useState("");
@@ -65,7 +61,7 @@ export function InvestorDetailPage() {
 
   const load = async () => {
     if (!params.id) return;
-    const [inv, own, props, acts, sigs, docs, nts, invs, users] = await Promise.all([
+    const [inv, own, props, acts, sigs, docs, nts, users] = await Promise.all([
       getInvestor(params.id),
       listOwnership(params.id),
       listProperties(),
@@ -73,7 +69,6 @@ export function InvestorDetailPage() {
       listSignals(),
       listDocuments({ investorId: params.id }),
       listNotes(params.id),
-      listInvitations(),
       listUsers(),
     ]);
     setInvestor(inv ?? null);
@@ -83,7 +78,6 @@ export function InvestorDetailPage() {
     setSignals(sigs.filter((s) => s.investorId === params.id));
     setDocuments(docs);
     setNotes(nts);
-    setInvitations(invs.filter((i) => i.investorId === params.id));
     setAgents(users.filter((u) => u.role === "agent"));
     setLoading(false);
   };
@@ -122,7 +116,6 @@ export function InvestorDetailPage() {
           { label: "Investors", href: "/investors" },
           { label: investor.name },
         ]}
-        actions={<StatusBadge value={investor.intentLevel} />}
       />
 
       <Tabs defaultValue="overview">
@@ -133,7 +126,6 @@ export function InvestorDetailPage() {
           <TabsTrigger value="signals">Intent Signals</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
-          <TabsTrigger value="invitations">Invitations</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -207,14 +199,13 @@ export function InvestorDetailPage() {
           <DataTable
             columns={[
               { key: "type", header: "Signal", cell: (r) => r.signalType },
-              { key: "level", header: "Intent", cell: (r) => <StatusBadge value={r.intentLevel} /> },
               { key: "status", header: "Status", cell: (r) => <StatusBadge value={r.status} /> },
               { key: "action", header: "Suggested action", cell: (r) => r.suggestedNextAction },
               { key: "date", header: "Generated", cell: (r) => formatDateTime(r.generatedAt) },
             ]}
             rows={signals}
             rowKey={(r) => r.id}
-            emptyTitle="No intent signals"
+            emptyTitle="No signals"
           />
           <div className="mt-3">
             <Button variant="outline" asChild>
@@ -312,68 +303,6 @@ export function InvestorDetailPage() {
             rows={notes}
             rowKey={(r) => r.id}
             emptyTitle="No notes"
-          />
-        </TabsContent>
-
-        <TabsContent value="invitations">
-          <DataTable
-            columns={[
-              { key: "status", header: "Status", cell: (r) => <StatusBadge value={r.status} /> },
-              { key: "sent", header: "Sent", cell: (r) => formatDateTime(r.sentAt) },
-              { key: "accepted", header: "Accepted", cell: (r) => formatDateTime(r.acceptedAt) },
-              { key: "exp", header: "Expires", cell: (r) => formatDate(r.expiresAt) },
-              {
-                key: "actions",
-                header: "Actions",
-                cell: (r) =>
-                  canMutate("investors") ? (
-                    <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={async () => {
-                          await updateInvitation(r.id, {
-                            status: "sent",
-                            lastReminderAt: new Date().toISOString(),
-                            sentAt: new Date().toISOString(),
-                          });
-                          toast.success("Invitation resent");
-                          load();
-                        }}
-                      >
-                        Resend
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          navigator.clipboard.writeText(r.link);
-                          toast.success("Invitation link copied");
-                        }}
-                      >
-                        Copy link
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={async () => {
-                          await updateInvitation(r.id, { status: "revoked" });
-                          toast.success("Invitation revoked");
-                          load();
-                        }}
-                      >
-                        Revoke
-                      </Button>
-                    </div>
-                  ) : (
-                    "—"
-                  ),
-              },
-            ]}
-            rows={invitations}
-            rowKey={(r) => r.id}
-            emptyTitle="No invitations"
-            emptyDescription="Use Invite investor to send an invitation."
           />
         </TabsContent>
       </Tabs>

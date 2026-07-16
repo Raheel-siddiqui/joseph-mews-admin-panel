@@ -63,7 +63,6 @@ export function SignalsPage() {
   const columns: Column<IntentSignal>[] = [
     { key: "type", header: "Signal", cell: (r) => r.signalType },
     { key: "activity", header: "Trigger", cell: (r) => r.triggeringActivity },
-    { key: "level", header: "Intent", cell: (r) => <StatusBadge value={r.intentLevel} /> },
     { key: "status", header: "Status", cell: (r) => <StatusBadge value={r.status} /> },
     { key: "action", header: "Suggested next", cell: (r) => r.suggestedNextAction },
     { key: "date", header: "Generated", cell: (r) => formatDateTime(r.generatedAt) },
@@ -144,7 +143,7 @@ export function SignalsPage() {
                 <p className="font-medium">{rule.name}</p>
                 <p className="text-sm text-muted-foreground">{rule.description}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Threshold {rule.threshold} · {rule.windowDays}d window · {rule.intentLevel}
+                  Threshold {rule.threshold} · {rule.windowDays}d window
                 </p>
               </div>
               <div className="flex items-center gap-2">

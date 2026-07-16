@@ -188,9 +188,63 @@ export function PropertyFormPage() {
           <Field label="Postcode">
             <Input disabled={!canEdit} value={form.postcode ?? ""} onChange={(e) => set("postcode", e.target.value)} />
           </Field>
-          <Field label="Image URL">
-            <Input disabled={!canEdit} value={form.image ?? ""} onChange={(e) => set("image", e.target.value)} />
-          </Field>
+        </FormSection>
+
+        <FormSection title="Image" description="Upload a property image.">
+          <div className="md:col-span-2 space-y-4">
+            {form.image ? (
+              <div className="overflow-hidden rounded-md border border-border bg-card/40">
+                <img
+                  src={form.image}
+                  alt={form.name || "Property"}
+                  className="h-48 w-full object-cover sm:h-56"
+                />
+              </div>
+            ) : (
+              <div className="flex h-48 items-center justify-center rounded-md border border-dashed border-border bg-card/20 text-sm text-muted-foreground sm:h-56">
+                No image selected
+              </div>
+            )}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="flex-1 space-y-2">
+                <Label htmlFor="property-image-upload">Upload image</Label>
+                <Input
+                  id="property-image-upload"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  disabled={!canEdit}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) {
+                      toast.error("Image must be under 5 MB");
+                      e.target.value = "";
+                      return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      set("image", String(reader.result ?? ""));
+                      toast.success("Image uploaded");
+                    };
+                    reader.onerror = () => toast.error("Failed to read image");
+                    reader.readAsDataURL(file);
+                  }}
+                />
+              </div>
+              {form.image && canEdit && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    set("image", "");
+                    toast.message("Image removed");
+                  }}
+                >
+                  Remove image
+                </Button>
+              )}
+            </div>
+          </div>
         </FormSection>
 
         <FormSection title="Financials">

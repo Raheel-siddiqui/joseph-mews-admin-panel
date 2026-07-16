@@ -54,10 +54,8 @@ export function InvestorsPage() {
         inv.nationality.toLowerCase().includes(q);
       const matchesAgent = agentFilter === "all" || inv.assignedAgentId === agentFilter;
       let matchesStatus = statusFilter === "all" || inv.accountStatus === statusFilter;
-      if (urlFilter === "high_intent") matchesStatus = ["high", "urgent"].includes(inv.intentLevel);
-      if (urlFilter === "signed_up") matchesStatus = ["signed_up", "first_login"].includes(inv.signUpStatus);
       if (urlFilter === "pending_invite") matchesStatus = inv.invitationStatus === "sent";
-      if (urlFilter === "invited") matchesStatus = inv.signUpStatus !== "not_invited";
+      if (urlFilter === "invited") matchesStatus = inv.invitationStatus != null && inv.invitationStatus !== "revoked";
       return matchesSearch && matchesAgent && matchesStatus;
     });
   }, [rows, search, agentFilter, statusFilter, urlFilter]);
@@ -76,9 +74,7 @@ export function InvestorsPage() {
     },
     { key: "account", header: "Account", cell: (r) => <StatusBadge value={r.accountStatus} /> },
     { key: "invite", header: "Invitation", cell: (r) => <StatusBadge value={r.invitationStatus ?? "none"} /> },
-    { key: "signup", header: "Sign-up", cell: (r) => <StatusBadge value={r.signUpStatus} /> },
     { key: "owned", header: "Properties", cell: (r) => r.ownedPropertyCount, className: "tabular-nums" },
-    { key: "intent", header: "Intent", cell: (r) => <StatusBadge value={r.intentLevel} /> },
     { key: "active", header: "Last active", cell: (r) => formatDate(r.lastActiveAt) },
     { key: "added", header: "Date added", cell: (r) => formatDate(r.createdAt) },
   ];
@@ -89,7 +85,7 @@ export function InvestorsPage() {
     <div>
       <PageHeader
         title="Investors"
-        description="Searchable investor CRM with invitation and intent visibility."
+        description="Searchable investor CRM with invitation and account visibility."
         actions={
           canMutate("investors") ? (
             <>
