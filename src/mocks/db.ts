@@ -65,7 +65,7 @@ function clone<T>(value: T): T {
   return structuredClone(value);
 }
 
-const STORAGE_KEY = "jm-admin-mock-db-v1";
+const STORAGE_KEY = "jm-admin-mock-db-v2";
 
 function createInitialDb(): MockDb {
   return {

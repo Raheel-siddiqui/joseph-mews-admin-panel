@@ -32,6 +32,7 @@ import type {
 } from "@/models";
 import {
   addNote,
+  assignPropertyToInvestor,
   getInvestor,
   listActivity,
   listDocuments,
@@ -40,12 +41,16 @@ import {
   listProperties,
   listSignals,
   listUsers,
+  removePropertyFromInvestor,
   updateInvestor,
   saveDocument,
 } from "@/services/api";
 
 export function InvestorDetailPage() {
   const params = useParams<{ id: string }>();
+  const searchString = typeof window !== "undefined" ? window.location.search : "";
+  const initialTab =
+    new URLSearchParams(searchString).get("tab") === "portfolio" ? "portfolio" : "overview";
   const { user, canMutate } = useAuth();
   const [investor, setInvestor] = useState<Investor | null>(null);
   const [ownership, setOwnership] = useState<PortfolioOwnership[]>([]);
@@ -57,6 +62,8 @@ export function InvestorDetailPage() {
   const [agents, setAgents] = useState<InternalUser[]>([]);
   const [noteBody, setNoteBody] = useState("");
   const [docName, setDocName] = useState("");
+  const [selectedPropertyId, setSelectedPropertyId] = useState("");
+  const [assigning, setAssigning] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
@@ -93,6 +100,11 @@ export function InvestorDetailPage() {
     );
   }
 
+  const ownedPropertyIds = new Set(ownership.map((o) => o.propertyId));
+  const availableProperties = properties.filter(
+    (p) => !ownedPropertyIds.has(p.id) && (!p.assignedInvestorId || p.assignedInvestorId === investor.id),
+  );
+
   const portfolioColumns: Column<PortfolioOwnership>[] = [
     {
       key: "property",
@@ -105,6 +117,27 @@ export function InvestorDetailPage() {
     { key: "equity", header: "Equity", cell: (r) => formatCurrency(r.equity) },
     { key: "rent", header: "Rent", cell: (r) => formatCurrency(r.monthlyRent) },
     { key: "ncf", header: "Net cash flow", cell: (r) => formatCurrency(r.netCashFlow) },
+    {
+      key: "actions",
+      header: "Actions",
+      cell: (r) =>
+        canMutate("investors") ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={async (e) => {
+              e.stopPropagation();
+              await removePropertyFromInvestor(investor.id, r.propertyId);
+              toast.success("Property removed from portfolio");
+              load();
+            }}
+          >
+            Remove
+          </Button>
+        ) : (
+          "—"
+        ),
+    },
   ];
 
   return (
@@ -118,7 +151,7 @@ export function InvestorDetailPage() {
         ]}
       />
 
-      <Tabs defaultValue="overview">
+      <Tabs defaultValue={initialTab}>
         <TabsList className="mb-4 flex h-auto flex-wrap justify-start gap-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
@@ -171,7 +204,61 @@ export function InvestorDetailPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="portfolio">
+        <TabsContent value="portfolio" className="space-y-4">
+          {canMutate("investors") && (
+            <FormSection
+              title="Add property"
+              description="Assign an existing property to this investor’s portfolio, or create a new one."
+            >
+              <div className="space-y-2 md:col-span-2">
+                <Label>Select property</Label>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <Select value={selectedPropertyId || undefined} onValueChange={setSelectedPropertyId}>
+                    <SelectTrigger className="sm:max-w-md">
+                      <SelectValue placeholder="Choose a property…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableProperties.length === 0 ? (
+                        <SelectItem value="__none" disabled>
+                          No unassigned properties available
+                        </SelectItem>
+                      ) : (
+                        availableProperties.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.name} · {p.reference}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    disabled={!selectedPropertyId || assigning}
+                    onClick={async () => {
+                      if (!selectedPropertyId) return;
+                      setAssigning(true);
+                      try {
+                        await assignPropertyToInvestor(investor.id, selectedPropertyId);
+                        setSelectedPropertyId("");
+                        toast.success("Property added to investor portfolio");
+                        load();
+                      } catch (err) {
+                        toast.error(err instanceof Error ? err.message : "Failed to assign property");
+                      } finally {
+                        setAssigning(false);
+                      }
+                    }}
+                  >
+                    {assigning ? "Adding…" : "Add to portfolio"}
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link href={`/properties/new?investorId=${investor.id}`}>
+                      Assign new property
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </FormSection>
+          )}
           <DataTable
             columns={portfolioColumns}
             rows={ownership}

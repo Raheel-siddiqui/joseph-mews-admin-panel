@@ -54,7 +54,37 @@ export type SignalStatus =
   | "converted";
 
 export type PaymentMilestoneStatus = "upcoming" | "due" | "paid" | "overdue";
+export type PaymentInstallmentStatus = "paid" | "due" | "upcoming";
 export type ContentStatus = "draft" | "published";
+
+/** Owned off-plan / in-build installment (investor-facing schedule). */
+export interface PaymentInstallment {
+  id: string;
+  label: string;
+  percent: number;
+  amount: number;
+  dueDate: string;
+  paidAt?: string;
+  status: PaymentInstallmentStatus;
+}
+
+export interface PaymentPlan {
+  name: string;
+  basisPrice: number;
+  installments: PaymentInstallment[];
+}
+
+/** Explore marketplace plan — illustrative only (no paid/due state). */
+export interface StandardPaymentStage {
+  label: string;
+  percent: number;
+  trigger: string;
+}
+
+export interface StandardPaymentPlan {
+  name: string;
+  stages: StandardPaymentStage[];
+}
 export type AssumptionScope =
   | "global"
   | "development"
@@ -169,7 +199,12 @@ export interface PropertyUnit {
   projectedGrossYield: number;
   projectedNetYield: number;
   projectedCapitalGrowth: number;
+  /** Explore list/eyebrow blurb. Use "Closed" when sold out. */
   paymentPlanSummary: string;
+  /** Explore standard staged plan; null when sold out / closed. */
+  standardPaymentPlan: StandardPaymentPlan | null;
+  /** Owned off-plan / in-build schedule. Compute paid/remaining/next from installments. */
+  paymentPlan: PaymentPlan | null;
   image: string;
   visibleInExplore: boolean;
   assignedInvestorId: string | null;

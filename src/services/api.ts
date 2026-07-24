@@ -408,6 +408,8 @@ export async function saveProperty(
     projectedNetYield: input.projectedNetYield ?? 0,
     projectedCapitalGrowth: input.projectedCapitalGrowth ?? 0,
     paymentPlanSummary: input.paymentPlanSummary ?? "",
+    standardPaymentPlan: input.standardPaymentPlan ?? null,
+    paymentPlan: input.paymentPlan ?? null,
     image: input.image ?? "",
     visibleInExplore: input.visibleInExplore ?? false,
     assignedInvestorId: input.assignedInvestorId ?? null,
@@ -453,6 +455,86 @@ export async function listOwnership(investorId?: string): Promise<PortfolioOwner
   await delay();
   const rows = getDb().ownership;
   return investorId ? rows.filter((o) => o.investorId === investorId) : [...rows];
+}
+
+export async function assignPropertyToInvestor(
+  investorId: string,
+  propertyId: string,
+): Promise<PortfolioOwnership> {
+  await delay();
+  const db = getDb();
+  const investor = db.investors.find((i) => i.id === investorId);
+  const property = db.properties.find((p) => p.id === propertyId);
+  if (!investor) throw new Error("Investor not found");
+  if (!property) throw new Error("Property not found");
+
+  const existing = db.ownership.find(
+    (o) => o.investorId === investorId && o.propertyId === propertyId,
+  );
+  if (existing) throw new Error("Property already assigned to this investor");
+
+  const ownership: PortfolioOwnership = {
+    id: id(),
+    investorId,
+    propertyId,
+    purchaseValue: property.purchasePrice,
+    currentValue: property.currentValue,
+    mortgageBalance: property.loanBalance,
+    equity: property.equity || property.currentValue - property.loanBalance,
+    monthlyRent: property.rentalEstimate,
+    netCashFlow:
+      property.rentalEstimate -
+      property.serviceCharge -
+      property.managementFee -
+      property.monthlyMortgage,
+  };
+  db.ownership.push(ownership);
+  property.assignedInvestorId = investorId;
+  if (property.status === "available" || property.status === "draft") {
+    property.status = "sold";
+  }
+  investor.ownedPropertyCount = db.ownership.filter((o) => o.investorId === investorId).length;
+
+  recordAudit({
+    ...actor,
+    action: "portfolio.property_assigned",
+    entityType: "PortfolioOwnership",
+    entityId: ownership.id,
+    previousValue: null,
+    newValue: `${investor.name} ← ${property.name}`,
+    ip: "127.0.0.1",
+  });
+  persist();
+  return ownership;
+}
+
+export async function removePropertyFromInvestor(
+  investorId: string,
+  propertyId: string,
+): Promise<void> {
+  await delay();
+  const db = getDb();
+  db.ownership = db.ownership.filter(
+    (o) => !(o.investorId === investorId && o.propertyId === propertyId),
+  );
+  const property = db.properties.find((p) => p.id === propertyId);
+  if (property && property.assignedInvestorId === investorId) {
+    property.assignedInvestorId = null;
+  }
+  const investor = db.investors.find((i) => i.id === investorId);
+  if (investor) {
+    investor.ownedPropertyCount = db.ownership.filter((o) => o.investorId === investorId).length;
+  }
+  recordAudit({
+    ...actor,
+    action: "portfolio.property_removed",
+    entityType: "PortfolioOwnership",
+    entityId: propertyId,
+    previousValue: investorId,
+    newValue: null,
+    ip: "127.0.0.1",
+  });
+  persist();
 }
 
 export async function listEnquiries(opts?: {

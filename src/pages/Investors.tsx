@@ -77,6 +77,25 @@ export function InvestorsPage() {
     { key: "owned", header: "Properties", cell: (r) => r.ownedPropertyCount, className: "tabular-nums" },
     { key: "active", header: "Last active", cell: (r) => formatDate(r.lastActiveAt) },
     { key: "added", header: "Date added", cell: (r) => formatDate(r.createdAt) },
+    {
+      key: "actions",
+      header: "Actions",
+      cell: (r) =>
+        canMutate("investors") ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              setLocation(`/investors/${r.id}?tab=portfolio`);
+            }}
+          >
+            Add property
+          </Button>
+        ) : (
+          "—"
+        ),
+    },
   ];
 
   if (loading) return <LoadingBlock />;
